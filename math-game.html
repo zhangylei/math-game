@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f7ed">
+    <title>小兔的胡萝卜 · 10 以内的分与合</title>
+    <style>
+        /* 沉浸式课堂主题，保持题目和作答区的高对比度。 */
+        :root { --ink: #244c3a; --green: #387654; --deep: #285c40; --paper: #fffef9; --line: #dce5d5; --muted: #63765e; }
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+        html { min-height: 100%; background: #f4f7ed; }
+        body { min-height: 100vh; margin: 0; display: flex; flex-direction: column; color: var(--ink); background: #f4f7ed; font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif; -webkit-font-smoothing: antialiased; }
+        button, select { color: inherit; font: inherit; }
+        button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        button:focus, select:focus { outline: 3px solid #cf9339; outline-offset: 4px; }
+        button:disabled { cursor: default; }
+        svg { display: inline-block; vertical-align: middle; }
+        .svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+        .icon { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+        .site-header { flex-shrink: 0; padding: 16px 32px; background: var(--paper); border-bottom: 1px solid var(--line); }
+        .header-inner { max-width: 1400px; margin: auto; display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; }
+        .brand-mark { width: 40px; height: 48px; margin-right: 12px; }
+        .brand-title { font-size: 25px; font-weight: 800; letter-spacing: 2px; }
+        .question-label { display: block; color: var(--muted); font-size: 17px; margin-top: 3px; }
+        .header-tools { display: flex; align-items: center; }
+        .tool { min-width: 52px; min-height: 52px; padding: 10px 14px; margin-left: 10px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); font-size: 20px; }
+        .tool-text { margin-left: 8px; }
+        .tool:hover { background: #eaf1df; }
+        .progress-section { width: 360px; margin: 0 20px; }
+        .progress-top { display: flex; align-items: center; justify-content: space-between; font-size: 20px; margin-bottom: 9px; color: var(--muted); }
+        .progress-top strong { color: var(--ink); }
+        .stars { display: flex; align-items: center; }
+        .star { width: 18px; height: 18px; margin-left: 3px; color: #dce4d2; fill: currentColor; }
+        .star.earned { color: #dca333; animation: star-in .3s ease-out; }
+        .progress-track { height: 6px; background: #e6ecdd; border-radius: 6px; overflow: hidden; }
+        .progress-fill { height: 100%; width: 0; background: #73a05e; border-radius: 6px; transition: width .3s ease; }
+        .page { flex: 1; width: 100%; padding: 22px 28px; display: flex; align-items: center; justify-content: center; }
+        .workspace { width: 100%; max-width: 1100px; }
+        .question-section { text-align: center; }
+        .question-title-row { display: flex; align-items: center; justify-content: center; }
+        .question-heading { font-size: 38px; font-weight: 800; line-height: 1.5; margin: 0; }
+        .question-heading:focus, #completionTitle:focus { outline: none; }
+        .question-sub { font-size: 22px; color: var(--muted); margin: 7px 0 0; line-height: 1.5; }
+        .read-button { flex-shrink: 0; width: 52px; height: 52px; margin-left: 15px; border: 1px solid #cfddc4; border-radius: 50%; background: #edf3e4; color: var(--green); }
+        .number-tree { max-width: 560px; margin: 22px auto 0; }
+        .whole { position: relative; z-index: 1; width: 112px; height: 104px; margin: 0 auto; background: #e6efd9; border: 2px solid #bdd1aa; border-bottom-width: 5px; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .tree-number { font: 700 64px/1 "Trebuchet MS", sans-serif; }
+        .whole small { font-size: 17px; margin-top: 4px; color: #576e4c; }
+        .branches { display: block; width: 100%; height: 42px; margin-top: -2px; }
+        .baskets { display: flex; justify-content: space-between; }
+        .basket { position: relative; width: 46%; min-height: 162px; padding: 32px 12px 12px; border: 2px solid #e9d8b5; border-radius: 22px; background: #fff8e9; display: flex; flex-direction: column; align-items: center; }
+        .basket-right { border-color: #d1dfc1; background: #eaf2e1; }
+        .basket-number { position: absolute; top: -27px; min-width: 68px; padding: 2px 12px; font: 700 48px/1.1 "Trebuchet MS", sans-serif; color: #9b6c32; border: 2px solid #e4cda4; border-radius: 15px; background: #fff9ed; }
+        .basket-right .basket-number { color: #426b38; border-color: #bfd1ab; background: #f2f7e9; }
+        .basket-number.missing, .whole.missing { border-style: dashed; border-color: #cc9d46; background: #fff5d9; color: #a46b21; }
+        .basket-title { font-size: 20px; color: #72674d; margin-bottom: 9px; }
+        .basket-right .basket-title { color: #566e48; }
+        .carrots { min-height: 82px; max-width: 225px; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; }
+        .carrot { width: 39px; height: 41px; margin: 0 2px; transform: rotate(-9deg); cursor: pointer; }
+        .mystery { min-height: 82px; display: flex; align-items: center; justify-content: center; }
+        .mystery svg { width: 66px; height: 82px; }
+        .zero { font-size: 20px; line-height: 1.5; align-self: center; color: #69775b; }
+        .answers-section { max-width: 1040px; margin: 24px auto 0; padding: 20px 26px; text-align: center; border: 1px solid var(--line); border-radius: 24px; background: var(--paper); }
+        .answer-caption { font-size: 21px; color: var(--muted); margin: 0 0 14px; }
+        .answers { display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); grid-gap: 10px; }
+        .answers.short-range { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 660px; margin: auto; }
+        .answer { height: 74px; padding: 0; border: 2px solid #d9e4cf; border-bottom: 5px solid #c9d8bd; border-radius: 16px; background: #f3f7ec; font: 700 40px/1 "Trebuchet MS", sans-serif; transition: background .15s, transform .15s; }
+        .answer:hover:not(:disabled) { background: #e5efd8; }
+        .answer[aria-pressed="true"] { color: #fff; border-color: #2b6041; background: var(--green); transform: translateY(-2px); }
+        .answer.wrong { background: #fff0df; border-color: #cf9d65; color: #995e28; animation: wiggle .3s; }
+        .answer.correct { color: #fff; background: var(--green); border-color: #2b6041; }
+        .feedback { min-height: 52px; padding: 8px 0; display: flex; align-items: center; justify-content: center; font-size: 21px; line-height: 1.5; color: var(--muted); }
+        .feedback.success { color: #34703e; font-weight: 700; }
+        .feedback.retry { color: #a2682b; }
+        .actions { display: flex; justify-content: center; align-items: center; }
+        .hint-button { min-height: 58px; margin-right: 20px; padding: 10px 22px; color: #536c45; background: #f2f5e9; border: 1px solid #d9e2cd; border-radius: 15px; font-size: 23px; }
+        .hint-button .icon { margin-right: 8px; }
+        .hint-button:disabled { opacity: .55; }
+        .primary { min-width: 230px; min-height: 62px; padding: 12px 28px; border: 0; border-bottom: 4px solid #245738; border-radius: 16px; background: var(--green); color: #fff; font-size: 25px; font-weight: 700; }
+        .primary:hover { background: #2e6848; }
+        .primary:active { transform: translateY(2px); }
+        .primary .icon { margin-left: 10px; }
+        .completion { text-align: center; max-width: 760px; margin: auto; padding: 30px 20px; }
+        .medal { width: 130px; height: 130px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; border-radius: 50%; background: #ffefc0; border: 9px solid #fff6da; }
+        .medal svg { width: 76px; height: 76px; color: #dba230; }
+        .completion h2 { margin: 0 0 15px; font-size: 38px; }
+        .completion p { margin: 0; font-size: 23px; line-height: 1.7; color: var(--muted); }
+        .result-stats { display: flex; justify-content: center; margin: 30px 0; }
+        .stat { padding: 8px 30px; border-right: 1px solid #cdd8c3; }
+        .stat:last-child { border: 0; }
+        .stat strong { display: block; font: 700 52px "Trebuchet MS", sans-serif; margin-bottom: 8px; }
+        .stat span { font-size: 21px; color: var(--muted); }
+        .result-note { padding: 18px; background: #e8f0dc; border-radius: 16px; font-size: 21px; line-height: 1.7; }
+        .again { margin-top: 28px; }
+        .modal { position: fixed; z-index: 10; top: 0; left: 0; right: 0; bottom: 0; padding: 20px; display: flex; justify-content: center; align-items: center; background: rgba(30,55,34,.38); }
+        .dialog { width: 620px; max-width: 100%; max-height: 90vh; overflow: auto; padding: 30px; border-radius: 26px; background: var(--paper); box-shadow: 0 20px 80px #244c3a26; }
+        .dialog h2 { font-size: 30px; margin: 0 0 24px; }
+        .setting-label { display: block; margin: 22px 0 12px; font-size: 22px; font-weight: 700; }
+        .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-gap: 9px; }
+        .tab { min-height: 62px; padding: 10px; border: 2px solid #d9e3cc; border-radius: 14px; background: #f3f6eb; font-size: 23px; }
+        .tab[aria-pressed="true"] { background: var(--green); color: #fff; border-color: var(--green); }
+        .range-setting { display: flex; justify-content: space-between; align-items: center; margin-top: 23px; font-size: 22px; font-weight: 700; }
+        .range-setting select { min-height: 56px; padding: 8px 20px; margin-left: 16px; background: #f2f6e9; border: 2px solid #d4dfc8; border-radius: 12px; font-size: 22px; }
+        .sound-setting { display: flex; align-items: center; justify-content: space-between; margin: 18px 0; font-size: 22px; font-weight: 700; }
+        .sound-setting .tool { min-width: 110px; margin: 0; }
+        .dialog p { font-size: 20px; line-height: 1.8; color: var(--muted); margin: 18px 0 0; }
+        .dialog .primary { display: block; width: 100%; margin-top: 25px; }
+        .confetti { position: fixed; z-index: 5; top: 0; right: 0; bottom: 0; left: 0; overflow: hidden; pointer-events: none; }
+        /* 轨迹、摆动和翻面分层，让彩纸先轻快喷发，再缓缓飘落。 */
+        .confetti-piece { position: absolute; width: 0; height: 0; animation: confetti-burst var(--flight-time) linear both; animation-delay: var(--launch-delay); }
+        .confetti-drift { display: block; width: var(--paper-width); height: var(--paper-height); animation: confetti-sway var(--sway-time) ease-in-out infinite alternate; animation-delay: var(--launch-delay); }
+        .confetti-paper { display: block; width: 100%; height: 100%; border-radius: 1px; color: var(--paper-color); background: currentColor; box-shadow: inset 1px 1px 0 rgba(255,255,255,.45); animation: confetti-flip var(--flip-time) linear infinite; }
+        .confetti-paper.is-dot { border-radius: 50%; }
+        .confetti-paper.is-ribbon { border: 2px solid currentColor; border-top: 0; border-bottom: 0; border-radius: 50%; background: transparent; box-shadow: none; }
+        .confetti-paper.is-star { background: transparent; box-shadow: none; }
+        .confetti-paper.is-star svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+        @keyframes confetti-burst {
+            0% { transform: translate3d(0, 0, 0) scale(.25); opacity: 0; animation-timing-function: cubic-bezier(.12,.65,.25,1); }
+            5% { opacity: 1; }
+            28% { transform: translate3d(var(--peak-x), var(--peak-y), 0) scale(1); opacity: 1; animation-timing-function: cubic-bezier(.45,0,.7,.45); }
+            62% { transform: translate3d(var(--fall-x), var(--fall-y), 0) scale(1); opacity: 1; animation-timing-function: linear; }
+            82% { opacity: .9; }
+            100% { transform: translate3d(var(--end-x), var(--end-y), 0) scale(.8); opacity: 0; }
+        }
+        @keyframes confetti-sway {
+            from { transform: translate3d(calc(-1 * var(--sway)), 0, 0) rotate(-12deg); }
+            to { transform: translate3d(var(--sway), 0, 0) rotate(16deg); }
+        }
+        @keyframes confetti-flip {
+            0% { transform: perspective(180px) rotateZ(var(--tilt)) rotateX(0deg) rotateY(0deg); }
+            50% { transform: perspective(180px) rotateZ(calc(var(--tilt) + 180deg)) rotateX(180deg) rotateY(35deg); }
+            100% { transform: perspective(180px) rotateZ(calc(var(--tilt) + 360deg)) rotateX(360deg) rotateY(0deg); }
+        }
+        @keyframes star-in { from { transform: scale(.6); } to { transform: scale(1); } }
+        @keyframes wiggle { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+        @media (max-height: 850px) and (min-width: 701px) {
+            .site-header { padding-top: 10px; padding-bottom: 10px; }
+            .page { padding-top: 12px; padding-bottom: 12px; }
+            .question-heading { font-size: 34px; }
+            .question-sub { margin-top: 3px; font-size: 20px; }
+            .number-tree { margin-top: 14px; max-width: 510px; }
+            .whole { width: 96px; height: 86px; border-radius: 20px; }
+            .tree-number { font-size: 54px; }
+            .whole small { font-size: 16px; margin-top: 2px; }
+            .branches { height: 34px; }
+            .basket { min-height: 128px; padding-top: 25px; padding-bottom: 6px; }
+            .basket-number { top: -24px; font-size: 43px; }
+            .basket-title { margin-bottom: 3px; }
+            .carrots, .mystery { min-height: 68px; }
+            .carrot { width: 34px; height: 34px; }
+            .mystery svg { width: 54px; height: 68px; }
+            .answers-section { margin-top: 15px; padding: 14px 22px; }
+            .answer-caption { margin-bottom: 10px; font-size: 20px; }
+            .answer { height: 64px; font-size: 36px; }
+            .feedback { min-height: 44px; font-size: 20px; }
+            .primary { min-height: 56px; font-size: 24px; }
+            .hint-button { min-height: 54px; font-size: 22px; }
+        }
+        @media (max-width: 1000px) { .site-header { padding-left: 22px; padding-right: 22px; } .progress-section { width: 300px; } .star { width: 15px; height: 15px; } .tool { padding-left: 11px; padding-right: 11px; } .brand-title { font-size: 23px; } .answers { grid-gap: 7px; } }
+        @media (max-width: 700px) {
+            .site-header { padding: 12px 16px; }
+            .brand-mark { width: 30px; height: 38px; margin-right: 6px; }
+            .brand-title { font-size: 22px; letter-spacing: 0; }
+            .question-label { display: none; }
+            .progress-section { width: 112px; margin: 0 10px; }
+            .progress-top { font-size: 18px; margin-bottom: 6px; justify-content: center; white-space: nowrap; }
+            .stars { display: none; }
+            .tool { min-width: 44px; min-height: 44px; width: 44px; padding: 8px; border-radius: 12px; margin-left: 6px; }
+            .tool-text { display: none; }
+            .page { padding: 18px 16px; }
+            .question-heading { font-size: 29px; }
+            .question-sub { font-size: 20px; margin-top: 5px; }
+            .read-button { width: 44px; height: 44px; margin-left: 9px; }
+            .number-tree { max-width: 460px; margin-top: 20px; }
+            .whole { width: 94px; height: 88px; border-radius: 20px; }
+            .tree-number { font-size: 54px; }
+            .whole small { font-size: 16px; margin-top: 2px; }
+            .branches { height: 34px; }
+            .basket { width: 47%; min-height: 132px; padding: 26px 7px 8px; border-radius: 18px; }
+            .basket-number { min-width: 60px; top: -24px; font-size: 40px; border-radius: 12px; }
+            .basket-title { font-size: 19px; margin-bottom: 5px; }
+            .carrots { max-width: 190px; min-height: 72px; }
+            .carrot { width: 31px; height: 36px; margin: 0 1px; }
+            .mystery { min-height: 72px; }
+            .mystery svg { width: 57px; height: 72px; }
+            .zero { font-size: 18px; }
+            .answers-section { margin-top: 20px; padding: 17px 14px; border-radius: 20px; }
+            .answer-caption { font-size: 20px; margin-bottom: 12px; }
+            .answers { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-gap: 9px; }
+            .answer { height: 60px; font-size: 33px; border-radius: 12px; border-bottom-width: 4px; }
+            .feedback { min-height: 56px; font-size: 19px; }
+            .hint-button { min-height: 54px; margin-right: 12px; padding: 9px 13px; font-size: 21px; }
+            .hint-button .icon { width: 22px; height: 22px; margin-right: 4px; }
+            .primary { min-width: 170px; min-height: 56px; padding: 10px 18px; font-size: 23px; }
+            .primary .icon { width: 22px; height: 22px; margin-left: 5px; }
+            .dialog { padding: 25px 20px; }
+            .dialog h2 { font-size: 28px; }
+            .tab { font-size: 21px; }
+            .sound-setting .tool { width: auto; min-width: 100px; }
+            .completion { padding: 20px 0; }
+            .completion h2 { font-size: 30px; }
+            .completion p { font-size: 21px; }
+            .stat { padding: 8px 16px; }
+            .stat strong { font-size: 44px; }
+            .stat span { font-size: 18px; }
+            .result-note { font-size: 20px; }
+        }
+        @media (max-width: 400px) {
+            .site-header { padding: 10px 12px; }
+            .page { padding: 14px 10px; }
+            .brand-title { font-size: 20px; }
+            .brand-mark { width: 27px; margin-right: 4px; }
+            .progress-section { width: 96px; margin: 0 8px; }
+            .question-title-row { position: relative; padding-right: 37px; }
+            .question-heading { font-size: 27px; }
+            .read-button { position: absolute; right: 0; top: 0; width: 38px; height: 40px; margin: 0; }
+            .read-button .icon { width: 23px; height: 23px; }
+            .question-sub { font-size: 19px; }
+            .number-tree { margin-top: 16px; }
+            .basket-title { font-size: 18px; }
+            .carrot { width: 26px; height: 34px; }
+            .carrots { max-width: 142px; min-height: 68px; }
+            .basket { min-height: 128px; }
+            .mystery { min-height: 68px; }
+            .answers-section { margin-top: 16px; padding: 14px 10px; }
+            .answers { grid-gap: 6px; }
+            .answer { height: 56px; font-size: 31px; }
+            .feedback { min-height: 52px; font-size: 18px; }
+            .hint-button { margin-right: 8px; padding: 10px; font-size: 19px; }
+            .primary { min-width: 157px; font-size: 21px; padding-left: 12px; padding-right: 12px; }
+            .stat { padding: 8px 12px; }
+            .stat span { font-size: 17px; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+    </style>
+</head>
+<body>
+    <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true">
+        <defs>
+            <symbol id="carrot" viewBox="0 0 40 50"><path d="M20 15C9 0 14-3 21 10C21-5 31-3 25 12C39 2 42 12 28 18" fill="#6d9251"/><path d="M12 17Q22 10 31 19Q32 28 14 47Q8 50 9 43L8 26Q7 20 12 17" fill="#efa052"/><path d="M11 26L19 29M10 35L15 37M24 21L29 24" fill="none" stroke="#d8843b" stroke-width="2" stroke-linecap="round"/></symbol>
+            <symbol id="bunny" viewBox="0 0 100 125"><path d="M31 58C5 8 22-9 35 11L48 48M54 49C52-8 77-9 74 16L68 60" fill="#fffcf1" stroke="#c8cbb5" stroke-width="2"/><path d="M29 20L38 46M64 15L61 45" stroke="#e9bbac" stroke-width="7" stroke-linecap="round"/><ellipse cx="50" cy="86" rx="39" ry="34" fill="#fffcf1" stroke="#c8cbb5" stroke-width="2"/><ellipse cx="30" cy="91" rx="8" ry="5" fill="#efc5b4"/><ellipse cx="72" cy="91" rx="8" ry="5" fill="#efc5b4"/><path d="M35 78V83M65 78V83" stroke="#52634e" stroke-width="4" stroke-linecap="round"/><path d="M46 89Q50 86 54 89L50 93Z" fill="#bd8f7d"/><path d="M50 94Q45 100 42 95M50 94Q55 100 58 95" fill="none" stroke="#826f5d" stroke-width="2" stroke-linecap="round"/></symbol>
+            <symbol id="star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.3l-5.8 3.1 1.1-6.5-4.7-4.6 6.5-.9z" fill="currentColor"/></symbol>
+            <symbol id="sound" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4zM15 8c3 2 3 6 0 8M18 5c5 4 5 10 0 14"/></symbol>
+            <symbol id="mute" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4zM16 9l5 6M21 9l-5 6"/></symbol>
+            <symbol id="help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 8.8C9.5 5.5 15 5.5 15 9c0 2-3 2-3 5M12 17h.01"/></symbol>
+            <symbol id="leaf" viewBox="0 0 24 24"><path d="M19 4C7 2 2 8 6 16c7 4 13-1 13-12zM5 21L16 8M8 15v-5M8 15h5"/></symbol>
+            <symbol id="split" viewBox="0 0 24 24"><path d="M12 3v6M12 9l-7 7M12 9l7 7M3 12v6h6M15 18h6v-6"/></symbol>
+            <symbol id="merge" viewBox="0 0 24 24"><path d="M5 20V15l7-7 7 7v5M12 8V2M8 6l4-4 4 4"/></symbol>
+            <symbol id="mix" viewBox="0 0 24 24"><path d="M3 6h3c5 0 7 12 12 12h3M17 14l4 4-4 4M3 18h3c2 0 4-2 5-5M14 9c1-2 2-3 4-3h3M17 2l4 4-4 4"/></symbol>
+            <symbol id="bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8 14a6 6 0 118 0c-1 1-1 2-1 2H9s0-1-1-2z"/></symbol>
+            <symbol id="arrow" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+            <symbol id="heart" viewBox="0 0 24 24"><path d="M20 5c-4-4-8 1-8 1S8 1 4 5s0 8 8 14c8-6 12-10 8-14z"/></symbol>
+        </defs>
+    </svg>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="brand"><svg class="brand-mark" aria-hidden="true"><use xlink:href="#bunny"/></svg><div><div class="brand-title">分与合</div><span class="question-label" id="questionLabel">分一分 · 10 以内</span></div></div>
+            <div class="progress-section"><div class="progress-top"><span id="questionProgress">第 <strong>1</strong> / 10 题</span><div class="stars" id="stars" role="img" aria-label="已获得 0 颗星星"></div></div><div class="progress-track" id="progressBar" role="progressbar" aria-label="本轮完成进度" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div class="progress-fill" id="progressFill"></div></div></div>
+            <div class="header-tools"><button class="tool" id="fullscreenButton" type="button" aria-label="进入全屏" title="进入全屏"><svg class="icon" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></svg><span class="tool-text" id="fullscreenText">全屏</span></button><button class="tool" id="helpButton" type="button" aria-label="练习设置" title="练习设置"><svg class="icon" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="#fffef9"/><circle cx="16" cy="12" r="2" fill="#fffef9"/><circle cx="10" cy="18" r="2" fill="#fffef9"/></svg><span class="tool-text">设置</span></button></div>
+        </div>
+    </header>
+    <main class="page">
+        <div class="workspace">
+            <section class="play-area" aria-label="分与合练习">
+                <div class="game-card">
+                    <div id="exercise">
+                        <div class="question-section">
+                            <div class="question-title-row"><h1 class="question-heading" id="questionHeading" tabindex="-1"></h1><button class="read-button" type="button" id="readButton" aria-label="读一读题目" title="读一读题目"><svg class="icon" aria-hidden="true"><use xlink:href="#sound"/></svg></button></div>
+                            <p class="question-sub" id="questionSub">帮小兔填上问号。</p>
+                            <div class="number-tree" aria-label="分与合数量图"><div class="whole" id="wholeBox"><span class="tree-number" id="totalNumber">8</span><small>一共有</small></div><svg class="branches" viewBox="0 0 480 47" preserveAspectRatio="none" aria-hidden="true"><path d="M240 0L110 44M240 0L370 44" fill="none" stroke="#bdcfae" stroke-width="3" stroke-linecap="round"/></svg><div class="baskets"><div class="basket"><div class="basket-number" id="leftNumber">3</div><div class="basket-title">小白</div><div class="carrots" id="leftCarrots"></div></div><div class="basket basket-right"><div class="basket-number missing" id="rightNumber">?</div><div class="basket-title">小灰</div><div id="rightCarrots"></div></div></div></div>
+                        </div>
+                        <div class="answers-section"><p class="answer-caption" id="answerCaption">选一个数字</p><div class="answers" id="answers" role="group" aria-label="选择答案"></div><div class="feedback" id="feedback" role="status" aria-live="polite">想一想，不着急。</div><div class="actions"><button class="hint-button" type="button" id="hintButton"><svg class="icon" aria-hidden="true"><use xlink:href="#bulb"/></svg>数一数</button><button class="primary" type="button" id="submitButton">确定<svg class="icon" aria-hidden="true"><use xlink:href="#arrow"/></svg></button></div></div>
+                    </div>
+                    <section class="completion" id="completion" hidden aria-labelledby="completionTitle"><div class="medal"><svg aria-hidden="true"><use xlink:href="#star"/></svg></div><h2 id="completionTitle" tabindex="-1">小小数学家，真棒！</h2><p>小兔的任务完成啦！</p><div class="result-stats"><div class="stat"><strong>10</strong><span>收获星星</span></div><div class="stat"><strong id="independentCount">0</strong><span>独立答对</span></div><div class="stat"><strong id="practiceCount">0</strong><span>练习后答对</span></div></div><div class="result-note" id="resultNote"></div><button class="primary again" id="againButton" type="button">再玩一轮<svg class="icon" aria-hidden="true"><use xlink:href="#arrow"/></svg></button></section>
+                </div>
+            </section>
+        </div>
+    </main>
+    <div class="modal" id="helpModal" hidden><section class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle" tabindex="-1"><h2 id="helpTitle">练习设置</h2><span class="setting-label" id="modeLabel">练习玩法</span><div class="tabs" role="group" aria-labelledby="modeLabel"><button class="tab" type="button" data-mode="split" aria-pressed="true">分一分</button><button class="tab" type="button" data-mode="merge" aria-pressed="false">合一合</button><button class="tab" type="button" data-mode="mixed" aria-pressed="false">小挑战</button></div><label class="range-setting">数字范围<select id="rangeSelect" aria-label="练习范围"><option value="5">5 以内</option><option value="10" selected>10 以内</option></select></label><div class="sound-setting"><span>答题音效</span><button class="tool" id="soundToggle" type="button" aria-label="关闭音效" aria-pressed="true" title="关闭音效"><svg class="icon" aria-hidden="true"><use id="soundIcon" xlink:href="#sound"/></svg><span id="soundText">开</span></button></div><p>选数字，点“确定”。不会时点“数一数”。每轮 10 题，可以慢慢想。</p><p>切换玩法或范围会重新开始一轮。</p><button class="primary" type="button" id="closeHelp">开始作答</button></section></div>
+    <div class="confetti" id="confetti" hidden aria-hidden="true"></div>
+    <script>
+        (function () {
+            'use strict';
+
+            // 每轮固定练习 10 题；数字范围包含 0，以帮助理解没有物品的情况。
+            var ROUND_SIZE = 10;
+            // 连续按下 1 和 0 时，在此时间内将输入识别为 10。
+            var NUMBER_INPUT_WINDOW = 800;
+            // 使用旧版浏览器也支持的 SVG 命名空间。
+            var XLINK_NS = 'http://www.w3.org/1999/xlink';
+            // 金色搭配明亮糖果色，营造节庆氛围，保留页面的柔和观感。
+            var CONFETTI_COLORS = ['#f2bd45', '#ffd977', '#ef7971', '#65b8aa', '#83b56a', '#ed9ac0', '#7fafe0'];
+            // 桌面使用完整彩纸数量，小屏减少数量以控制绘制开销。
+            var CONFETTI_COUNT = 108;
+            var CONFETTI_MOBILE_COUNT = 72;
+            // 两拨喷发略微错开，清理时间覆盖最长飞行时间与发射延迟。
+            var CONFETTI_WAVE_DELAY = 180;
+            var CONFETTI_FLIGHT_MIN = 2600;
+            var CONFETTI_FLIGHT_VARIATION = 1100;
+            var CONFETTI_DURATION = 4200;
+            var state = { mode: 'split', range: 10, deck: [], index: 0, selected: null, solved: false, helped: false, independent: 0, sound: true, finished: false };
+            var audioContext = null;
+            var keyboardDigit = '';
+            var keyboardTime = 0;
+            var lastFocused = null;
+            var confettiTimer = null;
+
+            /** 根据标识获取页面元素。 */
+            function el(id) { return document.getElementById(id); }
+
+            /** 打乱题目顺序，让每轮练习有所变化。 */
+            function shuffle(items) {
+                for (var i = items.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temporary = items[i];
+                    items[i] = items[j];
+                    items[j] = temporary;
+                }
+                return items;
+            }
+
+            /** 生成覆盖当前范围的题目，避免同一轮出现相同题目。 */
+            function makeDeck() {
+                var totals = [];
+                var used = {};
+                var deck = [];
+                for (var i = 1; i <= state.range; i++) { totals.push(i); }
+                while (deck.length < ROUND_SIZE) {
+                    var order = shuffle(totals.slice());
+                    for (var j = 0; j < order.length && deck.length < ROUND_SIZE; j++) {
+                        var total = order[j];
+                        var kind = state.mode === 'mixed' ? (deck.length % 2 === 0 ? 'split' : 'merge') : state.mode;
+                        var choices = [];
+                        for (var part = 0; part <= total; part++) {
+                            if (!used[kind + ':' + total + ':' + part]) { choices.push(part); }
+                        }
+                        if (!choices.length) { continue; }
+                        var left = choices[Math.floor(Math.random() * choices.length)];
+                        used[kind + ':' + total + ':' + left] = true;
+                        deck.push({ total: total, left: left, right: total - left, kind: kind });
+                    }
+                }
+                return deck;
+            }
+
+            /** 以不依赖外部图片的方式生成胡萝卜数量图。 */
+            function carrotMarkup(count) {
+                if (count === 0) { return '<span class="zero">空空的，是 0 个哦</span>'; }
+                var html = '';
+                for (var i = 0; i < count; i++) {
+                    html += '<svg class="carrot" data-counted="false" role="button" tabindex="0" aria-label="第 ' + (i + 1) + ' 个胡萝卜，点击做标记" aria-pressed="false"><use xlink:href="#carrot"/></svg>';
+                }
+                return html;
+            }
+
+            /** 更新练习进度与星星奖励。 */
+            function renderProgress() {
+                var completed = state.finished ? ROUND_SIZE : state.index + (state.solved ? 1 : 0);
+                var html = '';
+                for (var i = 0; i < ROUND_SIZE; i++) { html += '<svg class="star' + (i < completed ? ' earned' : '') + '" aria-hidden="true"><use xlink:href="#star"/></svg>'; }
+                el('stars').innerHTML = html;
+                el('stars').setAttribute('aria-label', '已获得 ' + completed + ' 颗星星');
+                el('questionProgress').innerHTML = state.finished ? '<strong>本轮完成啦！</strong>' : '第 <strong>' + (state.index + 1) + '</strong> / ' + ROUND_SIZE + ' 题';
+                el('progressFill').style.width = (completed / ROUND_SIZE * 100) + '%';
+                el('progressBar').setAttribute('aria-valuenow', completed);
+            }
+
+            /** 根据分或合的玩法显示数量、题目与算式。 */
+            function renderQuestion() {
+                var q = state.deck[state.index];
+                var split = q.kind === 'split';
+                state.selected = null;
+                state.solved = false;
+                state.helped = false;
+                keyboardDigit = '';
+                keyboardTime = 0;
+                el('exercise').hidden = false;
+                el('completion').hidden = true;
+                el('wholeBox').className = 'whole' + (split ? '' : ' missing');
+                el('totalNumber').textContent = split ? q.total : '?';
+                el('leftNumber').textContent = q.left;
+                el('rightNumber').textContent = split ? '?' : q.right;
+                el('rightNumber').className = 'basket-number' + (split ? ' missing' : '');
+                el('leftCarrots').innerHTML = carrotMarkup(q.left);
+                el('rightCarrots').className = split ? 'mystery' : 'carrots';
+                el('rightCarrots').innerHTML = split ? '<svg aria-hidden="true"><use xlink:href="#bunny"/></svg>' : carrotMarkup(q.right);
+                el('questionLabel').textContent = (split ? '分一分' : '合一合') + ' · ' + state.range + ' 以内';
+                el('questionHeading').textContent = split ? q.total + ' 可以分成 ' + q.left + ' 和几？' : q.left + ' 和 ' + q.right + ' 合起来是几？';
+                el('questionSub').textContent = '帮小兔填上问号。';
+                document.querySelector('.number-tree').setAttribute('aria-label', el('questionHeading').textContent);
+                el('answerCaption').textContent = '选一个数字';
+                el('hintButton').disabled = false;
+                el('hintButton').hidden = false;
+                el('submitButton').innerHTML = '确定<svg class="icon" aria-hidden="true"><use xlink:href="#arrow"/></svg>';
+                el('answers').className = 'answers' + (state.range === 5 ? ' short-range' : '');
+                var buttons = '';
+                for (var i = 0; i <= state.range; i++) { buttons += '<button type="button" class="answer" data-number="' + i + '" aria-label="选择 ' + i + '" aria-pressed="false">' + i + '</button>'; }
+                el('answers').innerHTML = buttons;
+                setFeedback('想一想，不着急。', '');
+                renderProgress();
+            }
+
+            /** 开始一轮练习，保留用户选择的玩法、范围与音效设置。 */
+            function startRound() {
+                clearConfetti();
+                if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+                state.deck = makeDeck();
+                state.index = 0;
+                state.independent = 0;
+                state.finished = false;
+                renderQuestion();
+            }
+
+            /** 显示温和的答题反馈。 */
+            function setFeedback(message, kind) {
+                el('feedback').textContent = message;
+                el('feedback').className = 'feedback' + (kind ? ' ' + kind : '');
+            }
+
+            /** 选中数字并填入分合图的问号位置。 */
+            function chooseAnswer(value) {
+                if (state.solved || state.finished || value > state.range) { return; }
+                state.selected = value;
+                var buttons = el('answers').querySelectorAll('button');
+                for (var i = 0; i < buttons.length; i++) {
+                    buttons[i].setAttribute('aria-pressed', Number(buttons[i].getAttribute('data-number')) === value ? 'true' : 'false');
+                    buttons[i].className = 'answer';
+                }
+                var q = state.deck[state.index];
+                el(q.kind === 'split' ? 'rightNumber' : 'totalNumber').textContent = value;
+                setFeedback('选好了 ' + value + '，点“确定”。', '');
+            }
+
+            /** 在支持 Web Audio 的浏览器中播放短促、柔和的反馈音效。 */
+            function playTone(success) {
+                if (!state.sound) { return; }
+                try {
+                    var AudioConstructor = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioConstructor) { return; }
+                    if (!audioContext) { audioContext = new AudioConstructor(); }
+                    if (audioContext.state === 'suspended') { audioContext.resume().catch(function () {}); }
+                    var notes = success ? [523.25, 659.25, 783.99] : [392, 349.23];
+                    for (var i = 0; i < notes.length; i++) {
+                        var oscillator = audioContext.createOscillator();
+                        var gain = audioContext.createGain();
+                        var time = audioContext.currentTime + i * 0.12;
+                        oscillator.type = 'sine';
+                        oscillator.frequency.value = notes[i];
+                        gain.gain.setValueAtTime(0, time);
+                        gain.gain.linearRampToValueAtTime(0.055, time + 0.015);
+                        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.24);
+                        oscillator.connect(gain);
+                        gain.connect(audioContext.destination);
+                        oscillator.start(time);
+                        oscillator.stop(time + 0.25);
+                        oscillator.onended = disconnectTone;
+                    }
+                } catch (error) { /* 浏览器禁用音频时，仍可正常进行练习。 */ }
+            }
+
+            /** 音效结束后断开音频节点。 */
+            function disconnectTone(event) { event.target.disconnect(); }
+
+            /** 结束撒花并清理元素，避免多次作答后堆积。 */
+            function clearConfetti() {
+                window.clearTimeout(confettiTimer);
+                confettiTimer = null;
+                el('confetti').hidden = true;
+                el('confetti').innerHTML = '';
+            }
+
+            /** 从按钮两侧分批喷出彩纸、金星和细彩带，翻转后轻盈飘落。 */
+            function celebrateAnswer() {
+                clearConfetti();
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { return; }
+                var button = el('submitButton').getBoundingClientRect();
+                var originX = button.left + button.width / 2;
+                var originY = button.top + button.height / 4;
+                // 以按钮的可视位置为发射点，按屏幕空间限制喷射高度与扇形宽度。
+                var maxHeight = Math.max(70, Math.min(originY - 24, window.innerHeight * 0.62, 500));
+                var spread = Math.min(window.innerWidth * 0.4, maxHeight * 1.05);
+                var count = window.innerWidth <= 700 ? CONFETTI_MOBILE_COUNT : CONFETTI_COUNT;
+                var fragment = document.createDocumentFragment();
+                for (var i = 0; i < count; i++) {
+                    var direction = i % 2 === 0 ? -1 : 1;
+                    var peakX = direction * (0.12 + Math.random() * 0.88) * spread;
+                    var peakY = -maxHeight * (0.55 + Math.random() * 0.45);
+                    var endY = window.innerHeight - originY + 40;
+                    var size = 4 + Math.random() * 5;
+                    // 每组穿插金星、细彩带和圆纸屑，其余为大小不一的彩纸。
+                    var shape = i % 12;
+                    var isStar = shape === 0;
+                    var isRibbon = shape === 1 || shape === 7;
+                    var piece = document.createElement('span');
+                    var drift = document.createElement('span');
+                    var paper = document.createElement('span');
+                    piece.className = 'confetti-piece';
+                    drift.className = 'confetti-drift';
+                    paper.className = 'confetti-paper' + (isStar ? ' is-star' : isRibbon ? ' is-ribbon' : shape === 4 ? ' is-dot' : '');
+                    piece.style.left = (originX + direction * button.width * 0.2) + 'px';
+                    piece.style.top = originY + 'px';
+                    piece.style.setProperty('--paper-color', isStar ? '#eeb53b' : CONFETTI_COLORS[i % CONFETTI_COLORS.length]);
+                    piece.style.setProperty('--paper-width', (isStar ? size + 5 : isRibbon ? 5 : size) + 'px');
+                    piece.style.setProperty('--paper-height', (isStar ? size + 5 : isRibbon ? size * 3.5 : shape === 4 ? size : size * 1.5) + 'px');
+                    piece.style.setProperty('--launch-delay', ((i < count * 0.65 ? 0 : CONFETTI_WAVE_DELAY) + Math.random() * 100) + 'ms');
+                    piece.style.setProperty('--flight-time', (CONFETTI_FLIGHT_MIN + Math.random() * CONFETTI_FLIGHT_VARIATION) + 'ms');
+                    piece.style.setProperty('--sway-time', (550 + Math.random() * 650) + 'ms');
+                    piece.style.setProperty('--flip-time', (850 + Math.random() * 1300) + 'ms');
+                    piece.style.setProperty('--sway', (8 + Math.random() * 18) + 'px');
+                    piece.style.setProperty('--tilt', (Math.random() * 360) + 'deg');
+                    piece.style.setProperty('--peak-x', peakX + 'px');
+                    piece.style.setProperty('--peak-y', peakY + 'px');
+                    piece.style.setProperty('--fall-x', (peakX * 1.2) + 'px');
+                    piece.style.setProperty('--fall-y', (peakY * 0.45) + 'px');
+                    piece.style.setProperty('--end-x', (peakX * 1.4) + 'px');
+                    piece.style.setProperty('--end-y', endY + 'px');
+                    if (isStar) {
+                        paper.innerHTML = '<svg viewBox="0 0 24 24"><path d="m12 1 3.4 7 7.6 1.1-5.5 5.3 1.3 7.6-6.8-3.6L5.2 22l1.3-7.6L1 9.1 8.6 8z"/></svg>';
+                    }
+                    drift.appendChild(paper);
+                    piece.appendChild(drift);
+                    fragment.appendChild(piece);
+                }
+                el('confetti').appendChild(fragment);
+                el('confetti').hidden = false;
+                confettiTimer = window.setTimeout(clearConfetti, CONFETTI_DURATION);
+            }
+
+            /** 检查答案；答错后保留本题，允许反复尝试。 */
+            function submitAnswer() {
+                if (state.finished) { return; }
+                if (state.solved) { nextQuestion(); return; }
+                if (state.selected === null) { setFeedback('先选一个数字吧。', 'retry'); return; }
+                var q = state.deck[state.index];
+                var answer = q.kind === 'split' ? q.right : q.total;
+                var selectedButton = el('answers').querySelector('[aria-pressed="true"]');
+                if (state.selected !== answer) {
+                    state.helped = true;
+                    selectedButton.className = 'answer wrong';
+                    setFeedback('再想一想，也可以点“数一数”。', 'retry');
+                    playTone(false);
+                    return;
+                }
+                state.solved = true;
+                if (!state.helped) { state.independent++; }
+                selectedButton.className = 'answer correct';
+                var buttons = el('answers').querySelectorAll('button');
+                for (var i = 0; i < buttons.length; i++) { buttons[i].disabled = true; }
+                el('totalNumber').textContent = q.total;
+                el('wholeBox').className = 'whole';
+                el('rightNumber').textContent = q.right;
+                el('rightNumber').className = 'basket-number';
+                el('rightCarrots').className = 'carrots';
+                el('rightCarrots').innerHTML = carrotMarkup(q.right);
+                document.querySelector('.number-tree').setAttribute('aria-label', q.total + ' 可以分成 ' + q.left + ' 和 ' + q.right);
+                el('hintButton').hidden = true;
+                el('submitButton').innerHTML = (state.index === ROUND_SIZE - 1 ? '看收获' : '下一题') + '<svg class="icon" aria-hidden="true"><use xlink:href="#arrow"/></svg>';
+                setFeedback('答对啦！' + q.left + ' 和 ' + q.right + ' 合成 ' + q.total + '。', 'success');
+                renderProgress();
+                playTone(true);
+                el('submitButton').focus();
+                celebrateAnswer();
+            }
+
+            /** 主动进入下一题，完成后展示本轮学习成果。 */
+            function nextQuestion() {
+                if (state.index === ROUND_SIZE - 1) {
+                    state.finished = true;
+                    el('exercise').hidden = true;
+                    el('completion').hidden = false;
+                    el('independentCount').textContent = state.independent;
+                    el('practiceCount').textContent = ROUND_SIZE - state.independent;
+                    el('resultNote').textContent = state.independent === ROUND_SIZE ? '全部独立答对！小兔想请你试试另一种玩法。' : '认真数一数、愿意再试一次，也是很棒的学习本领。';
+                    renderProgress();
+                    el('completionTitle').focus();
+                    return;
+                }
+                state.index++;
+                renderQuestion();
+                el('questionHeading').focus();
+            }
+
+            /** 显示可点数的实物提示，不直接填写数字答案。 */
+            function showHint() {
+                if (state.solved || state.finished) { return; }
+                state.helped = true;
+                var q = state.deck[state.index];
+                if (q.kind === 'split') {
+                    el('rightCarrots').className = 'carrots';
+                    el('rightCarrots').innerHTML = carrotMarkup(q.right);
+                    setFeedback(q.right === 0 ? '小灰这里是空的，用哪个数字表示？' : '数数小灰的，点一个就做一个标记。', '');
+                } else {
+                    setFeedback('数完小白的，再接着数小灰的。', '');
+                }
+                el('hintButton').disabled = true;
+            }
+
+            /** 为实物做计数标记，避免孩子重复数同一根胡萝卜。 */
+            function markCarrot(target) {
+                if (!target.classList.contains('carrot')) { return; }
+                var counted = target.getAttribute('data-counted') !== 'true';
+                target.setAttribute('data-counted', counted ? 'true' : 'false');
+                target.setAttribute('aria-pressed', counted ? 'true' : 'false');
+                target.setAttribute('aria-label', target.getAttribute('aria-label').replace(counted ? '点击做标记' : '已标记，点击取消', counted ? '已标记，点击取消' : '点击做标记'));
+                target.style.opacity = counted ? '0.36' : '1';
+                target.style.transform = counted ? 'rotate(12deg) translateY(-3px)' : '';
+            }
+
+            /** 在支持语音合成的设备上朗读当前题目。 */
+            function readQuestion() {
+                if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) { setFeedback('这台设备暂时不能朗读，请和爸爸妈妈一起读题吧。', ''); return; }
+                window.speechSynthesis.cancel();
+                var utterance = new SpeechSynthesisUtterance(el('questionHeading').textContent + el('questionSub').textContent);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.85;
+                utterance.onerror = function (event) { if (event.error !== 'interrupted' && event.error !== 'canceled') { setFeedback('暂时没有可用的朗读声音，请和爸爸妈妈一起读题吧。', ''); } };
+                window.speechSynthesis.speak(utterance);
+            }
+
+            /** 打开说明弹层，并将键盘焦点移入弹层。 */
+            function openHelp() {
+                lastFocused = document.activeElement;
+                el('helpModal').hidden = false;
+                document.body.style.overflow = 'hidden';
+                el('closeHelp').focus();
+            }
+
+            /** 关闭说明弹层并恢复原来的键盘焦点。 */
+            function closeHelp() {
+                el('helpModal').hidden = true;
+                document.body.style.overflow = '';
+                if (lastFocused) { lastFocused.focus(); }
+            }
+
+            /** 通过浏览器全屏能力减少作答时的外部干扰。 */
+            function toggleFullscreen() {
+                var active = document.fullscreenElement || document.webkitFullscreenElement;
+                var action = active ? (document.exitFullscreen || document.webkitExitFullscreen) : (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+                if (!action) { return; }
+                try {
+                    var result = action.call(active ? document : document.documentElement);
+                    // 旧版浏览器可能不返回 Promise，需先判断再处理失败。
+                    if (result && typeof result.catch === 'function') { result.catch(fullscreenUnavailable); }
+                } catch (error) { fullscreenUnavailable(); }
+            }
+
+            /** 浏览器拒绝全屏时，提供可继续练习的简短提示。 */
+            function fullscreenUnavailable() { setFeedback('暂时无法全屏，可以继续作答。', ''); }
+
+            /** 让全屏按钮与浏览器实际状态保持一致。 */
+            function syncFullscreen() {
+                var active = document.fullscreenElement || document.webkitFullscreenElement;
+                el('fullscreenButton').setAttribute('aria-label', active ? '退出全屏' : '进入全屏');
+                el('fullscreenButton').title = active ? '退出全屏' : '进入全屏';
+                el('fullscreenText').textContent = active ? '退出全屏' : '全屏';
+            }
+
+            /** 绑定页面交互，兼容不支持现代语法的浏览器。 */
+            function bindEvents() {
+                var tabs = document.querySelectorAll('[data-mode]');
+                for (var i = 0; i < tabs.length; i++) {
+                    tabs[i].addEventListener('click', function () {
+                        var mode = this.getAttribute('data-mode');
+                        if (state.mode === mode) { return; }
+                        state.mode = mode;
+                        for (var j = 0; j < tabs.length; j++) { tabs[j].setAttribute('aria-pressed', tabs[j] === this ? 'true' : 'false'); }
+                        startRound();
+                    });
+                }
+                el('rangeSelect').addEventListener('change', function () { state.range = Number(this.value); startRound(); });
+                el('answers').addEventListener('click', function (event) { if (event.target.hasAttribute('data-number')) { chooseAnswer(Number(event.target.getAttribute('data-number'))); } });
+                el('submitButton').addEventListener('click', submitAnswer);
+                el('hintButton').addEventListener('click', showHint);
+                el('againButton').addEventListener('click', function () { startRound(); el('questionHeading').focus(); });
+                el('readButton').addEventListener('click', readQuestion);
+                el('exercise').addEventListener('click', function (event) {
+                    // SVG 内部的 use 也可能成为事件目标，向上找到对应的胡萝卜。
+                    var target = event.target;
+                    while (target && target !== this && !(target.classList && target.classList.contains('carrot'))) { target = target.parentNode; }
+                    if (target && target !== this) { markCarrot(target); }
+                });
+                el('soundToggle').addEventListener('click', function () {
+                    state.sound = !state.sound;
+                    this.setAttribute('aria-pressed', state.sound ? 'true' : 'false');
+                    this.setAttribute('aria-label', state.sound ? '关闭音效' : '开启音效');
+                    this.title = state.sound ? '关闭音效' : '开启音效';
+                    el('soundIcon').setAttributeNS(XLINK_NS, 'xlink:href', state.sound ? '#sound' : '#mute');
+                    el('soundText').textContent = state.sound ? '开' : '关';
+                });
+                el('fullscreenButton').hidden = !(document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen);
+                el('fullscreenButton').addEventListener('click', toggleFullscreen);
+                document.addEventListener('fullscreenchange', syncFullscreen);
+                document.addEventListener('webkitfullscreenchange', syncFullscreen);
+                el('helpButton').addEventListener('click', openHelp);
+                el('closeHelp').addEventListener('click', closeHelp);
+                el('helpModal').addEventListener('click', function (event) { if (event.target === this) { closeHelp(); } });
+                document.addEventListener('keydown', function (event) {
+                    if (!el('helpModal').hidden) {
+                        if (event.key === 'Escape') { closeHelp(); }
+                        if (event.key === 'Tab') {
+                            var focusable = el('helpModal').querySelectorAll('button:not(:disabled), select');
+                            var first = focusable[0];
+                            var last = focusable[focusable.length - 1];
+                            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+                        }
+                        return;
+                    }
+                    if (event.ctrlKey || event.altKey || event.metaKey || event.repeat || event.target.tagName === 'SELECT') { return; }
+                    if (event.target.classList && event.target.classList.contains('carrot') && (event.key === ' ' || event.key === 'Enter')) { event.preventDefault(); markCarrot(event.target); return; }
+                    if (state.finished) { return; }
+                    if (/^[0-9]$/.test(event.key)) {
+                        event.preventDefault();
+                        var now = Date.now();
+                        var number = keyboardDigit === '1' && event.key === '0' && now - keyboardTime < NUMBER_INPUT_WINDOW ? 10 : Number(event.key);
+                        keyboardDigit = event.key;
+                        keyboardTime = now;
+                        chooseAnswer(number);
+                    } else if (event.key === 'Enter' && (event.target === document.body || event.target.id === 'questionHeading' || event.target.classList.contains('answer'))) {
+                        event.preventDefault();
+                        submitAnswer();
+                    }
+                });
+            }
+
+            bindEvents();
+            startRound();
+        }());
+    </script>
+</body>
+</html>
